@@ -48,7 +48,7 @@ services:
 
   zkevm-sequencer:
     container_name: zkevm-sequencer
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 9092:9091 # needed if metrics enabled
       - 6060:6060
@@ -69,7 +69,7 @@ services:
 
   zkevm-sequence-sender:
     container_name: zkevm-sequence-sender
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     environment:
       - ZKEVM_NODE_STATE_DB_HOST=zkevm-state-db
       - ZKEVM_NODE_POOL_DB_HOST=zkevm-pool-db
@@ -87,7 +87,7 @@ services:
 
   zkevm-json-rpc:
     container_name: zkevm-json-rpc
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 8123:8123
       - 8133:8133 # needed if WebSockets enabled
@@ -107,7 +107,7 @@ services:
 
   zkevm-aggregator:
     container_name: zkevm-aggregator
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 50081:50081
       - 9093:9091 # needed if metrics enabled
@@ -124,7 +124,7 @@ services:
 
   zkevm-sync:
     container_name: zkevm-sync
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 9095:9091 # needed if metrics enabled
     environment:
@@ -141,7 +141,7 @@ services:
 
   zkevm-eth-tx-manager:
     container_name: zkevm-eth-tx-manager
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 9094:9091 # needed if metrics enabled
     environment:
@@ -158,7 +158,7 @@ services:
 
   zkevm-l2gaspricer:
     container_name: zkevm-l2gaspricer
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     environment:
       - ZKEVM_NODE_POOL_DB_HOST=zkevm-pool-db
     volumes:
@@ -290,7 +290,7 @@ services:
 
   zkevm-explorer-json-rpc:
     container_name: zkevm-explorer-json-rpc
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 8124:8124
       - 8134:8134 # needed if WebSockets enabled
@@ -359,7 +359,7 @@ services:
 
   zkevm-approve:
     container_name: zkevm-approve
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     environment:
       - ZKEVM_NODE_STATE_DB_HOST=zkevm-state-db
     volumes:
@@ -395,7 +395,7 @@ services:
 
   zkevm-permissionless-node:
     container_name: zkevm-permissionless-node
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     ports:
       - 8125:8125
     environment:
@@ -447,7 +447,7 @@ services:
 
   zkevm-sh:
     container_name: zkevm-sh
-    image: zkevm-node
+    image: ${ZKEVM_NODE_IMAGE}
     stdin_open: true 
     tty: true
     environment:
