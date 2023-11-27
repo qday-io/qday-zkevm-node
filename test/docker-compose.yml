@@ -339,9 +339,9 @@ services:
       - 50071:50071 # Executor
     volumes:
       - ./config/test.prover.config.json:/usr/src/app/config.json
-    command: >
-      zkProver -c /usr/src/app/config.json
-
+    command:
+      - -c
+      - /usr/src/app/config.json
   zkevm-approve:
     container_name: zkevm-approve
     image: ${B2_ZKEVM_NODE_IMAGE}
