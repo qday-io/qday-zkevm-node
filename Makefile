@@ -12,7 +12,7 @@ endif
 GOBASE := $(shell pwd)
 GOBIN := $(GOBASE)/dist
 GOENVVARS := GOBIN=$(GOBIN) CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH)
-GOBINARY := zkevm-node
+GOBINARY := b2-zkevm-node
 GOCMD := $(GOBASE)/cmd
 
 LDFLAGS += -X 'github.com/0xPolygonHermez/zkevm-node.Version=$(VERSION)'
@@ -28,7 +28,12 @@ PYTHON         = $(or $(wildcard $(VENV_PYTHON)), "install_first_venv")
 GENERATE_SCHEMA_DOC = $(VENV)/bin/generate-schema-doc
 GENERATE_DOC_PATH   = "docs/config-file/"
 GENERATE_DOC_TEMPLATES_PATH = "docs/config-file/templates/"
-
+DATE=$(shell date +%Y%m%d-%H%M%S)
+COMMITID=$(shell git log -1 --format='%h')
+BRANCH=$(shell git branch --show-current)
+GIT_TAG=$(shell git describe --tags --abbrev=0)
+IMAGE_REPO=ghcr.io/b2network/b2-zkevm-node
+IMAGE_TAG=${IMAGE_REPO}:${BRANCH}-${GIT_TAG}-${DATE}-${COMMITID}
 # Check dependencies
 # Check for Go
 .PHONY: check-go
@@ -78,9 +83,10 @@ generate-code-from-proto: check-protoc
 build: ## Builds the binary locally into ./dist
 	$(GOENVVARS) go build -ldflags "all=$(LDFLAGS)" -o $(GOBIN)/$(GOBINARY) $(GOCMD)
 
-.PHONY: build-docker
-build-docker: ## Builds a docker image with the node binary
-	docker build -t zkevm-node -f ./Dockerfile .
+image-build: ## Builds a docker image with the node binary
+	docker build -t ${IMAGE_TAG} -f ./Dockerfile .
+image-push: ## Builds a docker image with the node binary
+	docker push --all-tags ${IMAGE_REPO}
 
 .PHONY: build-docker-nc
 build-docker-nc: ## Builds a docker image with the node binary - but without build cache
