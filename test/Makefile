@@ -472,7 +472,7 @@ run: ## Runs a full node
 	$(RUNPOOLDB)
 	$(RUNEVENTDB)
 	$(RUNL1NETWORK)
-	sleep 1
+	sleep 10
 	$(RUNZKPROVER)
 	$(RUNAPPROVE)
 	sleep 3
