@@ -24,3 +24,5 @@ cmd/__debug_bin
 .venv
 
 *metrics.txt
+*.log
+tmp*

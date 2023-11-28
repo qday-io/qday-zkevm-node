@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 	"testing"
+	"time"
 
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/test/operations"
@@ -20,17 +21,17 @@ func TestEthTransfer(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	// defer func() { require.NoError(t, operations.Teardown()) }()
+	defer func() { require.NoError(t, operations.Teardown()) }()
 
-	// err := operations.Teardown()
-	// require.NoError(t, err)
-	// opsCfg := operations.GetDefaultOperationsConfig()
-	// opsCfg.State.MaxCumulativeGasUsed = 80000000000
-	// opsman, err := operations.NewManager(ctx, opsCfg)
-	// require.NoError(t, err)
-	// err = opsman.Setup()
-	// require.NoError(t, err)
-	// time.Sleep(5 * time.Second)
+	err := operations.Teardown()
+	require.NoError(t, err)
+	opsCfg := operations.GetDefaultOperationsConfig()
+	opsCfg.State.MaxCumulativeGasUsed = 80000000000
+	opsman, err := operations.NewManager(ctx, opsCfg)
+	require.NoError(t, err)
+	err = opsman.Setup()
+	require.NoError(t, err)
+	time.Sleep(5 * time.Second)
 	// Load account with balance on local genesis
 	auth, err := operations.GetAuth(operations.DefaultSequencerPrivateKey, operations.DefaultL2ChainID)
 	require.NoError(t, err)

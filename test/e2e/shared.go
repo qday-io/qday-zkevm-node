@@ -40,13 +40,14 @@ var networks = []struct {
 	ChainID      uint64
 	PrivateKey   string
 }{
-	{
-		Name:         "Local L1",
-		URL:          operations.DefaultL1NetworkURL,
-		WebSocketURL: operations.DefaultL1NetworkWebSocketURL,
-		ChainID:      operations.DefaultL1ChainID,
-		PrivateKey:   operations.DefaultSequencerPrivateKey,
-	},
+	// FIXME temporarily disabled
+	// {
+	// 	Name:         "Local L1",
+	// 	URL:          operations.DefaultL1NetworkURL,
+	// 	WebSocketURL: operations.DefaultL1NetworkWebSocketURL,
+	// 	ChainID:      operations.DefaultL1ChainID,
+	// 	PrivateKey:   operations.DefaultSequencerPrivateKey,
+	// },
 	{
 		Name:         "Local L2",
 		URL:          operations.DefaultL2NetworkURL,

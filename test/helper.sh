@@ -27,10 +27,23 @@ debug() {
     return
 }
 
-test-e2e-probe() {
-    DIRNAME=tmp-test-e2e-20231118-165316
+e2e() {
+    exec >"$FUNCNAME.log" 2>&1
+    for num in {1..11}; do
+        # echo "--- $num ---"
+        make test-e2e-group-${num}
+    done
+}
+
+e2e-probe() {
+    # DIRNAME=tmp-test-e2e-20231118-165316
     # wc $DIRNAME/*
-    grep -irncE 'err|fail' $DIRNAME
+    FILE=e2e.log
+
+    # grep -irnH '=== RUN' $FILE
+    grep -ir '\-\-\- FAIL' $FILE
+    # grep -irnH '\-\-\- PASS' $FILE
+    # grep -irncE 'err|fail' $DIRNAME
     # grep -irncE 'err|fail' $DIRNAME/* | wc
     # grep -irnE 'err|fail' $DIRNAME/test-e2e-group-1-debug.log
     # grep -irnHE 'err|fail' $DIRNAME/zkevm-mock-l1-network.log
@@ -41,7 +54,7 @@ test-e2e-probe() {
     return
 }
 
-test-e2e() {
+e2e-debug() {
     DIRNAME=tmp-test-e2e-$DATE
     mkdir -p $DIRNAME
     exec >"$DIRNAME/$FUNCNAME.log" 2>&1
@@ -61,14 +74,15 @@ addChainStateToB2Node() {
     set -e
     docker container rm -f b2-node
     B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231031-175311-eb3cc87
-    cd /root/b2-node-single-client-all-data
-    bash helper.sh restore
+    TMT_ROOT=/ssd/code/work/b2network/single-client-datadir
+    cd $TMT_ROOT
+    # bash helper.sh restore
     CHAIN_REPO_ID=$(git log -1 --format='%h')
     cd -
     docker run \
         --name b2-node \
         --entrypoint sleep \
-        --volume /root/b2-node-single-client-all-data:/host \
+        --volume $TMT_ROOT:/host \
         --detach \
         $B2_NODE_IMAGE infinity
     docker container ls

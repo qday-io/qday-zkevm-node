@@ -97,17 +97,15 @@ test-full-non-e2e: stop ## Runs non-e2e tests checking race conditions
 	trap '$(STOP)' EXIT; MallocNanoZone=0 go test -count=1 -short -race -p 1 -covermode=atomic -coverprofile=../coverage.out -timeout 70s ../...
 
 .PHONY: test-e2e-group-1
-test-e2e-group-1: 
-# stop ## Runs group 1 e2e tests checking race conditions
-	# $(RUNSTATEDB)
-	# $(RUNPOOLDB)
-	# $(RUNEVENTDB)
-	# sleep 5
-	# $(RUNZKPROVER)
-	# docker ps -a
-	# docker logs $(DOCKERCOMPOSEZKPROVER)
-	# trap '$(STOP)' EXIT; 
-	MallocNanoZone=0 go test -count=1 -race -v -p 1 -timeout 600s ../ci/e2e-group1/ethtransfer_test.go
+test-e2e-group-1: stop ## Runs group 1 e2e tests checking race conditions
+	$(RUNSTATEDB)
+	$(RUNPOOLDB)
+	$(RUNEVENTDB)
+	sleep 5
+	$(RUNZKPROVER)
+	docker ps -a
+	docker logs $(DOCKERCOMPOSEZKPROVER)
+	trap '$(STOP)' EXIT; MallocNanoZone=0 go test -count=1 -race -v -p 1 -timeout 600s ../ci/e2e-group1/...
 
 .PHONY: test-e2e-group-2
 test-e2e-group-2: stop ## Runs group 2 e2e tests checking race conditions
