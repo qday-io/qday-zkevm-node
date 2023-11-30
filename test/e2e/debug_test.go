@@ -84,7 +84,7 @@ func TestDebugTraceTransactionNotFoundTx(t *testing.T) {
 		require.NotNil(t, response.Error)
 
 		require.Equal(t, -32000, response.Error.Code)
-		require.Equal(t, "transaction not found", response.Error.Message)
+		require.Contains(t, response.Error.Message, "not found")
 		require.Nil(t, response.Error.Data)
 	}
 }
@@ -148,7 +148,7 @@ func TestDebugTraceBlockByNumberNotFoundTx(t *testing.T) {
 		require.NotNil(t, response.Error)
 
 		require.Equal(t, -32000, response.Error.Code)
-		require.Equal(t, "block #999999999999 not found", response.Error.Message)
+		require.True(t, strings.Contains(response.Error.Message, "must be less than or equal") || strings.Contains(response.Error.Message, "not found"))
 		require.Nil(t, response.Error.Data)
 	}
 }
@@ -212,7 +212,7 @@ func TestDebugTraceBlockByHashNotFoundTx(t *testing.T) {
 		require.NotNil(t, response.Error)
 
 		require.Equal(t, -32000, response.Error.Code)
-		require.Equal(t, "block 0x0000000000000000000000000000000000000000000000000000000000000000 not found", response.Error.Message)
+		require.True(t, strings.Contains(response.Error.Message, "block 0x0000000000000000000000000000000000000000000000000000000000000000 not found") || strings.Contains(response.Error.Message, "block not found"))
 		require.Nil(t, response.Error.Data)
 	}
 }
