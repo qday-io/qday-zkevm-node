@@ -1,16 +1,15 @@
 ---
 name: Report a bug
-about: Something with Polygon zkEVM is not working as expected
+about: Something with b2netwotk is not working as expected
 title: ''
 labels: 'type:bug'
 assignees: ''
 ---
 
 #### System information
-
-zkEVM Node version: `v0.0.X-RCXX`
-OS & Version: `Windows/Linux/OSX`
-Commit hash : (if `develop`)
+b2-zkevm-node version(`b2-zkevm-node version`): 
+OS & Version(`cat /etc/os-release`):
+Commit hash(`git log -1`):
 Network: `Mainnet/Testnet`
 
 #### Expected behaviour
