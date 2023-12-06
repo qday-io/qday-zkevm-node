@@ -318,18 +318,30 @@ func TestDebugTraceBlockCallTracer(t *testing.T) {
 		WebSocketURL string
 		ChainID      uint64
 		PrivateKey   string
+		debugOptions map[string]interface{}
 	}{
 		{
 			Name:       l1NetworkName,
 			URL:        operations.DefaultL1NetworkURL,
 			ChainID:    operations.DefaultL1ChainID,
 			PrivateKey: operations.DefaultSequencerPrivateKey,
+			debugOptions: map[string]interface{}{
+				"tracer":       "callTracer",
+				"tracerConfig": "{'onlyTopCall':false, 'withLog':true}",
+			},
 		},
 		{
 			Name:       l2NetworkName,
 			URL:        l2NetworkURL,
 			ChainID:    operations.DefaultL2ChainID,
 			PrivateKey: operations.DefaultSequencerPrivateKey,
+			debugOptions: map[string]interface{}{
+				"tracer": "callTracer",
+				"tracerConfig": map[string]interface{}{
+					"onlyTopCall": false,
+					"withLog":     true,
+				},
+			},
 		},
 	}
 
@@ -396,19 +408,11 @@ func TestDebugTraceBlockCallTracer(t *testing.T) {
 				receipt, err := ethereumClient.TransactionReceipt(ctx, signedTx.Hash())
 				require.NoError(t, err)
 
-				debugOptions := map[string]interface{}{
-					"tracer": "callTracer",
-					"tracerConfig": map[string]interface{}{
-						"onlyTopCall": false,
-						"withLog":     true,
-					},
-				}
-
 				var response types.Response
 				if tc.blockNumberOrHash == "number" {
-					response, err = client.JSONRPCCall(network.URL, "debug_traceBlockByNumber", hex.EncodeBig(receipt.BlockNumber), debugOptions)
+					response, err = client.JSONRPCCall(network.URL, "debug_traceBlockByNumber", hex.EncodeBig(receipt.BlockNumber), network.debugOptions)
 				} else {
-					response, err = client.JSONRPCCall(network.URL, "debug_traceBlockByHash", receipt.BlockHash.String(), debugOptions)
+					response, err = client.JSONRPCCall(network.URL, "debug_traceBlockByHash", receipt.BlockHash.String(), network.debugOptions)
 				}
 				require.NoError(t, err)
 				require.Nil(t, response.Error)
