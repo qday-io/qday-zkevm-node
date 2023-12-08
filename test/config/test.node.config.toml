@@ -153,7 +153,7 @@ PrivateKeys = [
 Type = "default"
 UpdatePeriod = "10s"
 Factor = 0.5
-DefaultGasPriceWei = 1000000000
+DefaultGasPriceWei = 1000000
 MaxGasPriceWei = 0
 
 [MTClient]
