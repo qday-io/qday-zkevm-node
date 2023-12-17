@@ -12,6 +12,8 @@ services:
       - ./config/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/default.yml:ro
       - ./config/grafana/dashboard-dockers.json:/etc/grafana/provisioning/dashboards/dashboard-dockers.json:ro
       - ./config/grafana/dashboard-node.json:/etc/grafana/provisioning/dashboards/dashboard-node.json:ro
+      - /etc/localtime:/etc/localtime:ro 
+
     environment:
       - GF_SECURITY_ADMIN_USER=zkevm
       - GF_SECURITY_ADMIN_PASSWORD=zkevm
@@ -26,6 +28,7 @@ services:
     volumes:
       - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro 
     user: telegraf:${DOCKERGID}
     environment:
       - POSTGRES_HOST=grafana-db
@@ -45,6 +48,8 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=grafana
+    volumes:
+      - /etc/localtime:/etc/localtime:ro 
 
   zkevm-sequencer:
     container_name: zkevm-sequencer
@@ -62,6 +67,7 @@ services:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
       - ./:/datastreamer
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -80,6 +86,7 @@ services:
       - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -100,6 +107,7 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -117,6 +125,7 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -134,6 +143,7 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -151,6 +161,7 @@ services:
       - ./aggregator.keystore:/pk/aggregator.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -165,6 +176,7 @@ services:
       - ./test.keystore:/pk/keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "/bin/sh"
       - "-c"
@@ -183,6 +195,7 @@ services:
       - 5432:5432
     volumes:
       - ../db/scripts/init_prover_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - /etc/localtime:/etc/localtime:ro 
     environment:
       - POSTGRES_USER=state_user
       - POSTGRES_PASSWORD=state_password
@@ -207,6 +220,8 @@ services:
       - POSTGRES_USER=pool_user
       - POSTGRES_PASSWORD=pool_password
       - POSTGRES_DB=pool_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro 
     command:
       - "postgres"
       - "-N"
@@ -225,6 +240,7 @@ services:
       - 5435:5432
     volumes:
       - ../db/scripts/init_event_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - /etc/localtime:/etc/localtime:ro 
     environment:
       - POSTGRES_USER=event_user
       - POSTGRES_PASSWORD=event_password
@@ -252,6 +268,8 @@ services:
       - "/bin/sh"
       - "-c"
       - "mix do ecto.create, ecto.migrate; mix phx.server"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro 
 
   zkevm-explorer-l1-db:
     container_name: zkevm-explorer-l1-db
@@ -266,6 +284,8 @@ services:
       - "postgres"
       - "-N"
       - "500"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   zkevm-explorer-l2:
     container_name: zkevm-explorer-l2
@@ -287,6 +307,8 @@ services:
       - "/bin/sh"
       - "-c"
       - "mix do ecto.create, ecto.migrate; mix phx.server"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   zkevm-explorer-json-rpc:
     container_name: zkevm-explorer-json-rpc
@@ -302,6 +324,7 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro
     command:
       - "/bin/sh"
       - "-c"
@@ -317,6 +340,8 @@ services:
       - POSTGRES_PASSWORD=l2_explorer_password
       - POSTGRES_DB=l2_explorer_db
     command: [ "postgres", "-N", "500" ]
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   zkevm-mock-l1-network:
     container_name: zkevm-mock-l1-network
@@ -330,6 +355,8 @@ services:
       - 8545:8545
       - 8546:8546
       - 8126:8125
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   zkevm-prover:
     container_name: zkevm-prover
@@ -339,6 +366,7 @@ services:
       - 50071:50071 # Executor
     volumes:
       - ./config/test.prover.config.json:/usr/src/app/config.json
+      - /etc/localtime:/etc/localtime:ro
     command:
       - -c
       - /usr/src/app/config.json
@@ -351,6 +379,7 @@ services:
       - ./sequencer.keystore:/pk/keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro
     command:
       - "/bin/sh"
       - "-c"
@@ -369,6 +398,7 @@ services:
       - 5434:5432
     volumes:
       - ../db/scripts/single_db_server.sql:/docker-entrypoint-initdb.d/init.sql
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - POSTGRES_USER=test_user
       - POSTGRES_PASSWORD=test_password
@@ -400,6 +430,7 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro
     command:
       - "/bin/sh"
       - "-c"
@@ -415,6 +446,7 @@ services:
       - 50078:50071 # Executor
     volumes:
       - ./config/test.permissionless.prover.config.json:/usr/src/app/config.json
+      - /etc/localtime:/etc/localtime:ro
     command: >
       zkProver -c /usr/src/app/config.json
 
@@ -429,6 +461,7 @@ services:
       - --web.enable-lifecycle
     volumes:
       - ../config/metrics/prometheus:/etc/prometheus
+      - /etc/localtime:/etc/localtime:ro
 
   zkevm-sh:
     container_name: zkevm-sh
@@ -441,5 +474,6 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - /etc/localtime:/etc/localtime:ro
     command:
       - "/bin/sh"
