@@ -3,6 +3,8 @@ set -x
 shopt -s expand_aliases
 alias geth="docker-compose exec -T zkevm-mock-l1-network geth"
 alias gethL2="docker-compose exec -T zkevm-explorer-json-rpc /app/zkevm-node"
+alias dc='docker-compose'
+
 DATE=$(date +%Y%m%d-%H%M%S)
 
 debug() {
@@ -35,46 +37,49 @@ e2e() {
     done
 }
 
-e2e-probe() {
-    # DIRNAME=tmp-test-e2e-20231118-165316
+jmeter-probe() {
+    DIRNAME=tmp-jmeter-20231215-093244
     # wc $DIRNAME/*
-    FILE=e2e.log
+    # FILE=e2e.log
+    FLAG='-irnE'
 
-    # grep -irnH '=== RUN' $FILE
-    grep -ir '\-\-\- FAIL' $FILE
-    # grep -irnH '\-\-\- PASS' $FILE
-    # grep -irncE 'err|fail' $DIRNAME
-    # grep -irncE 'err|fail' $DIRNAME/* | wc
-    # grep -irnE 'err|fail' $DIRNAME/test-e2e-group-1-debug.log
-    # grep -irnHE 'err|fail' $DIRNAME/zkevm-mock-l1-network.log
-    # grep -irnHE 'err|fail' $DIRNAME/zkevm-prover.log
-    # grep -irnHE 'err|fail' $DIRNAME/zkevm-sequence-sender.log
-    # grep -irnHE 'err|fail' $DIRNAME/zkevm-sequencer.log
-    # grep -irnHE 'err|fail' $DIRNAME/zkevm-sync.log
+    # grep $FLAG '=== RUN' $FILE
+    # grep $FLAG '\-\-\- FAIL' $FILE
+    # grep $FLAG '\-\-\- PASS' $FILE
+    # grep $FLAG 'err|fail' $DIRNAME
+    # grep $FLAG 'err|fail' $DIRNAME/* | wc
+    # grep $FLAG 'err|fail' $DIRNAME/*
+    # return
+    # grep $FLAG 'err|fail' $DIRNAME/test-e2e-group-1-debug.log
+    grep $FLAG 'err|fail' $DIRNAME/zkevm-mock-l1-network.log
+    # grep $FLAG 'err|fail' $DIRNAME/zkevm-prover.log
+    grep $FLAG 'err|fail' $DIRNAME/zkevm-sequence-sender.log
+    grep $FLAG 'err|fail' $DIRNAME/zkevm-sequencer.log
+    # grep $FLAG 'err|fail' $DIRNAME/zkevm-sync.log
     return
 }
 
-e2e-debug() {
-    DIRNAME=tmp-test-e2e-$DATE
-    mkdir -p $DIRNAME
-    exec >"$DIRNAME/$FUNCNAME.log" 2>&1
-    # make stop run
-    # sleep 10s
-    # docker-compose ps -a
-    # return
-    make test-e2e-group-1 >$DIRNAME/test-e2e-group-1-debug.log 2>&1
-    SRVS=$(docker-compose ps -a | grep Exit | cut -d ' ' -f 1 | sed 1d | xargs)
-    for item in $SRVS; do
-        docker-compose logs $item >$DIRNAME/$item.log 2>&1
+jmeter-debug() {
+    # DIRNAME=tmp-jmeter-$DATE
+    # mkdir -p $DIRNAME
+    docker-compose down -v zkevm-pool-db
+    docker-compose up -d zkevm-pool-db
+    return
+    dc ps
+    svs=$(dc ps --services | xargs)
+    for item in $svs;do
+        dc exec -it $item date
+        # dc exec -it $item env
+        # dc exec -it $item cat /etc/os-release
+        # dc logs $item >$DIRNAME/$item.log 2>&1
     done
-    # make stop
 }
 
 addChainStateToB2Node() {
     set -e
     docker container rm -f b2-node
-    B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231031-175311-eb3cc87
-    TMT_ROOT=/ssd/code/work/b2network/single-client-datadir
+    B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231218-124128-8c17002
+    TMT_ROOT=/root/b2network/single-client-datadir
     cd $TMT_ROOT
     # bash helper.sh restore
     CHAIN_REPO_ID=$(git log -1 --format='%h')
@@ -87,7 +92,7 @@ addChainStateToB2Node() {
         $B2_NODE_IMAGE infinity
     docker container ls
     docker exec -it b2-node sh -c 'mkdir -p /root/.ethermintd/ && cp -r /host/* /root/.ethermintd/ && ls /root/.ethermintd/'
-    docker commit --author tony-armstrong b2-node $B2_NODE_IMAGE-chainstate-$CHAIN_REPO_ID
+    docker commit --author tony-armstrong b2-node $B2_NODE_IMAGE-with-datadir-$CHAIN_REPO_ID
     docker container stop b2-node
     docker container rm b2-node
     return
