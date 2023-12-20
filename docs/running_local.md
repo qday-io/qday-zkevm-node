@@ -225,3 +225,10 @@ To configure your Metamask to use your local environment, follow these steps:
     "0x20E7077d25fe79C5F6c2D3ae4905E96aA7C89c13"
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     ```
+## Start L1/L2 explorer
+1. clone repo https://github.com/b2network/blockscout/
+1. checkout dev branch
+2. cd docker-compose
+3. `bash helper.sh restartL1L2` will  start l1,l2 exploler
+   1. access l1 explorer via port 30000
+   2. access l2 explorer via port 30001
