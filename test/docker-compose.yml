@@ -185,7 +185,7 @@ services:
   zkevm-state-db:
     container_name: zkevm-state-db
     image: ${PG_IMAGE}
-    deploy:
+    deploy: &dbResourceLimit
       resources:
         limits:
           memory: 2G
@@ -208,12 +208,8 @@ services:
   zkevm-pool-db:
     container_name: zkevm-pool-db
     image: ${PG_IMAGE}
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-        reservations:
-          memory: 1G
+    deploy: 
+      <<: *dbResourceLimit
     ports:
       - 5433:5432
     environment:
@@ -231,11 +227,7 @@ services:
     container_name: zkevm-event-db
     image: ${PG_IMAGE}
     deploy:
-      resources:
-        limits:
-          memory: 2G
-        reservations:
-          memory: 1G
+      <<: *dbResourceLimit
     ports:
       - 5435:5432
     volumes:
