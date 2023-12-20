@@ -143,6 +143,7 @@ CleanupLockedProofsInterval = "2m"
 GeneratingProofCleanupThreshold = "10m"
 
 [EthTxManager]
+MaxTxLoadNum = 250
 ForcedGas = 0
 PrivateKeys = [
 	{Path = "/pk/sequencer.keystore", Password = "testonly"},

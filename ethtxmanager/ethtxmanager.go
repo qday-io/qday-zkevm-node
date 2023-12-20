@@ -115,7 +115,7 @@ func (c *Client) Add(ctx context.Context, owner, id string, from common.Address,
 //
 // the slice is returned is in order by created_at field ascending
 func (c *Client) ResultsByStatus(ctx context.Context, owner string, statuses []MonitoredTxStatus, dbTx pgx.Tx) ([]MonitoredTxResult, error) {
-	mTxs, err := c.storage.GetByStatus(ctx, &owner, statuses, dbTx)
+	mTxs, err := c.storage.GetByStatus(ctx, &owner, statuses, dbTx, c.cfg.MaxTxLoadNum)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func (c *Client) Reorg(ctx context.Context, fromBlockNumber uint64, dbTx pgx.Tx)
 // monitorTxs process all pending monitored tx
 func (c *Client) monitorTxs(ctx context.Context) error {
 	statusesFilter := []MonitoredTxStatus{MonitoredTxStatusCreated, MonitoredTxStatusSent, MonitoredTxStatusReorged}
-	mTxs, err := c.storage.GetByStatus(ctx, nil, statusesFilter, nil)
+	mTxs, err := c.storage.GetByStatus(ctx, nil, statusesFilter, nil, c.cfg.MaxTxLoadNum)
 	if err != nil {
 		return fmt.Errorf("failed to get created monitored txs: %v", err)
 	}

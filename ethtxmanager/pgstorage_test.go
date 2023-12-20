@@ -136,13 +136,13 @@ func TestAddAndGetByStatus(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	mTxs, err := storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{MonitoredTxStatusConfirmed}, nil)
+	mTxs, err := storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{MonitoredTxStatusConfirmed}, nil, 200)
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(mTxs))
 	assert.Equal(t, "confirmed1", mTxs[0].id)
 	assert.Equal(t, "confirmed2", mTxs[1].id)
 
-	mTxs, err = storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{MonitoredTxStatusSent, MonitoredTxStatusCreated}, nil)
+	mTxs, err = storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{MonitoredTxStatusSent, MonitoredTxStatusCreated}, nil, 200)
 	require.NoError(t, err)
 	assert.Equal(t, 4, len(mTxs))
 	assert.Equal(t, "created1", mTxs[0].id)
@@ -150,7 +150,7 @@ func TestAddAndGetByStatus(t *testing.T) {
 	assert.Equal(t, "created2", mTxs[2].id)
 	assert.Equal(t, "sent2", mTxs[3].id)
 
-	mTxs, err = storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{}, nil)
+	mTxs, err = storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{}, nil, 200)
 	require.NoError(t, err)
 	assert.Equal(t, 8, len(mTxs))
 	assert.Equal(t, "created1", mTxs[0].id)
@@ -212,7 +212,7 @@ func TestGetByStatusNoRows(t *testing.T) {
 	storage, err := NewPostgresStorage(dbCfg)
 	require.NoError(t, err)
 
-	mTxs, err := storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{}, nil)
+	mTxs, err := storage.GetByStatus(context.Background(), nil, []MonitoredTxStatus{}, nil, 200)
 	require.NoError(t, err)
 	require.Empty(t, mTxs)
 }

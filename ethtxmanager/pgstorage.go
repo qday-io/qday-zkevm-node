@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"math/big"
+	"strconv"
 	"time"
 
 	"github.com/0xPolygonHermez/zkevm-node/db"
@@ -80,7 +81,7 @@ func (s *PostgresStorage) Get(ctx context.Context, owner, id string, dbTx pgx.Tx
 }
 
 // GetByStatus loads all monitored tx that match the provided status
-func (s *PostgresStorage) GetByStatus(ctx context.Context, owner *string, statuses []MonitoredTxStatus, dbTx pgx.Tx) ([]monitoredTx, error) {
+func (s *PostgresStorage) GetByStatus(ctx context.Context, owner *string, statuses []MonitoredTxStatus, dbTx pgx.Tx, sqlLimit uint64) ([]monitoredTx, error) {
 	hasStatusToFilter := len(statuses) > 0
 
 	conn := s.dbConn(dbTx)
@@ -94,6 +95,10 @@ func (s *PostgresStorage) GetByStatus(ctx context.Context, owner *string, status
 	}
 	cmd += `
          ORDER BY created_at`
+
+	if sqlLimit != 0 {
+		cmd += " limit " + strconv.FormatUint(sqlLimit, 10)
+	}
 
 	mTxs := []monitoredTx{}
 
