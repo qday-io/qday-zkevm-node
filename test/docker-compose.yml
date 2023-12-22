@@ -338,6 +338,8 @@ services:
   zkevm-mock-l1-network:
     container_name: zkevm-mock-l1-network
     image: ${B2_NODE_IMAGE}
+    env_file:
+      - .env.bitcoin
     entrypoint:
       - ethermintd
     command:

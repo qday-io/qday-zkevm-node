@@ -78,7 +78,7 @@ jmeter-debug() {
 addChainStateToB2Node() {
     set -e
     docker container rm -f b2-node
-    B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231218-124128-8c17002
+    B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231222-145531-18655e6
     TMT_ROOT=/root/b2network/single-client-datadir
     cd $TMT_ROOT
     # bash helper.sh restore
@@ -133,6 +133,8 @@ onlyProbeL1() {
 }
 
 collectionLog() {
+    DIRNAME=log-$DATE
+    mkdir -p $DIRNAME
     for name in \
         zkevm-approve \
         zkevm-sync \
@@ -147,7 +149,7 @@ collectionLog() {
         docker-compose logs \
             --no-log-prefix \
             --no-color \
-            $name >$name.log
+            $name >$DIRNAME/$name.log
     done
 }
 
@@ -162,12 +164,13 @@ init() {
 }
 
 probe() {
+    go test -count=1 -short -race -p 1 -covermode=atomic -coverprofile=../coverage.out -timeout 70s  -run TestAddAndGetByStatus ../ethtxmanager/
     # exec >"$FUNCNAME.log" 2>&1
     # grep -irE 'STATEDB.*:|POOLDB.*:|EVENTDB.*:|NETWORK' Makefile
 
     # export DATABASE_URL="postgres://l1_explorer_user:l1_explorer_password@192.168.50.127:5436/l1_explorer_db?sslmode=disable"
     # psql --echo-all $DATABASE_URL --file=zkevm-l1.sql
-    # return
+    return
     # export DATABASE_URL="postgres://pool_user:pool_password@192.168.50.127:5433/pool_db?sslmode=disable"
     # psql --echo-all $DATABASE_URL --file=zkevm-pool.sql
 

@@ -1,7 +1,7 @@
 IsTrustedSequencer = true
 
 [Log]
-Environment = "development" # "production" or "development"
+Environment = "production" # "production" or "development"
 Level = "info"
 Outputs = ["stderr"]
 
@@ -81,7 +81,7 @@ EnableL2SuggestedGasPricePolling = true
 SyncInterval = "1s"
 SyncChunkSize = 100
 TrustedSequencerURL = "" # If it is empty or not specified, then the value is read from the smc.
-L1SynchronizationMode = "sequential" # "sequential" or "parallel"
+L1SynchronizationMode = "parallel" # "sequential" or "parallel"
 	[Synchronizer.L1ParallelSynchronization]
 		MaxClients = 10
 		MaxPendingNoProcessedBlocks = 25
@@ -143,7 +143,7 @@ CleanupLockedProofsInterval = "2m"
 GeneratingProofCleanupThreshold = "10m"
 
 [EthTxManager]
-MaxTxLoadNum = 250
+MaxTxLoadNum = 100
 ForcedGas = 0
 PrivateKeys = [
 	{Path = "/pk/sequencer.keystore", Password = "testonly"},
