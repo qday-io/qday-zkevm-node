@@ -1,0 +1,51 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug component",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/cmd",
+            "args": [
+                "run",
+                "--network",
+                "custom",
+                "--custom-network-file",
+                "test/config/test.genesis.config.json",
+                "--cfg",
+                "test/config/non-container-test.node.config.toml",
+                "--components",
+                "synchronizer"
+            ]
+        },
+        {
+            "name": "debug approve",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/cmd",
+            "args": [
+                "approve",
+                "--network",
+                "custom",
+                "--custom-network-file",
+                "test/config/test.genesis.config.json",
+                "--key-store-path",
+                "test/sequencer.keystore",
+                "--pw",
+                "testonly",
+                "--am",
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                "-y",
+                "--cfg",
+                "test/config/non-container-test.node.config.toml",
+            ]
+        },
+    ]
+}

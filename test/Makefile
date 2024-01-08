@@ -474,6 +474,7 @@ run: ## Runs a full node
 	$(RUNZKPROVER)
 	$(RUNAPPROVE)
 	sleep 3
+	# read -p "Press enter to continue"
 	$(RUNSYNC)
 	sleep 4
 	$(RUNETHTXMANAGER)
@@ -482,7 +483,7 @@ run: ## Runs a full node
 	$(RUNL2GASPRICER)
 	$(RUNAGGREGATOR)
 	$(RUNJSONRPC)
-	$(RUNMETRICS)
+	# $(RUNMETRICS)
 
 .PHONY: stop
 stop: ## Stops all services

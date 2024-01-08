@@ -78,7 +78,7 @@ jmeter-debug() {
 addChainStateToB2Node() {
     set -e
     docker container rm -f b2-node
-    B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231222-145531-18655e6
+    B2_NODE_IMAGE=ghcr.io/b2network/b2-node:20231226-104117-9fd5727
     TMT_ROOT=/root/b2network/single-client-datadir
     cd $TMT_ROOT
     # bash helper.sh restore
@@ -133,8 +133,19 @@ onlyProbeL1() {
 }
 
 collectionLog() {
-    DIRNAME=log-$DATE
+    docker-compose logs \
+        --timestamps \
+        --since 2023-12-26T22:42:50 \
+        --until 2023-12-26T22:52:50 \
+        --no-color  > tmp.log
+    for cmd in wc du head tail; do
+        $cmd tmp.log
+    done
+    return
+    DIRNAME=log-$DATE-reorgctx
     mkdir -p $DIRNAME
+    docker-compose logs \
+        --no-color > $DIRNAME/all.log
     for name in \
         zkevm-approve \
         zkevm-sync \
@@ -151,6 +162,8 @@ collectionLog() {
             --no-color \
             $name >$DIRNAME/$name.log
     done
+
+    tar -jcf /stable/work-backup/b2-network/b2-$DIRNAME.tar.bz2 $DIRNAME/*
 }
 
 init() {
@@ -245,6 +258,16 @@ changeHost() {
     toml set --toml-path $FILE Pool.DB.Port 5433
     toml set --toml-path $FILE EventLog.DB.Port 5435
     toml set --toml-path $FILE HashDB.Port 5432
+}
+
+probeReorg(){
+    # du -sh *
+    # wc *
+    # grep -irnc 'error' *
+    # grep -irnc 'reorg' *
+    # grep -irnc 'BatchNumber.*1' zkevm*
+    grep -irn -m 65 'BatchNumber.*1' zkevm*
+    # grep -irn fed2e021c9aedfddb4fbab5a143bd35549e4d1edc7d8866a3f8fa3fa3fbe8332 zkevm*
 }
 
 $@

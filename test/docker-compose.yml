@@ -56,7 +56,7 @@ services:
     image: ${B2_ZKEVM_NODE_IMAGE}
     ports:
       - 9092:9091 # needed if metrics enabled
-      - 6060:6060
+      # - 6060:6060
       - 6900:6900 # Data stream server
     environment:
       - ZKEVM_NODE_STATE_DB_HOST=zkevm-state-db
@@ -98,7 +98,7 @@ services:
     ports:
       - 8123:8123
       - 8133:8133 # needed if WebSockets enabled
-      - 9091:9091 # needed if metrics enabled
+      # - 9091:9091 # needed if metrics enabled
     environment:
       - ZKEVM_NODE_STATE_DB_HOST=zkevm-state-db
       - ZKEVM_NODE_POOL_DB_HOST=zkevm-pool-db
@@ -144,6 +144,11 @@ services:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
       - /etc/localtime:/etc/localtime:ro 
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
     command:
       - "/bin/sh"
       - "-c"
