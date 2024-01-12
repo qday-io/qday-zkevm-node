@@ -956,7 +956,7 @@ func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*E
 	if err != nil {
 		return nil, err
 	}
-	ethermintBlock, err := etherMan.GetEthermintBlockByNum(ctx, number.Uint64())
+	ethermintBlock, err := etherMan.GetEthermintBlockByNum(ctx, header.Number.Uint64())
 	if err != nil {
 		return nil, err
 	}
