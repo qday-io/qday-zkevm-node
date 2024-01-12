@@ -134,6 +134,7 @@ type externalGasProviders struct {
 // Client is a simple implementation of EtherMan.
 type Client struct {
 	EthClient             ethereumClient
+	RpcClient             *rpc.Client
 	ZkEVM                 *polygonzkevm.Polygonzkevm
 	GlobalExitRootManager *polygonzkevmglobalexitroot.Polygonzkevmglobalexitroot
 	Matic                 *matic.Matic
@@ -185,6 +186,7 @@ func NewClient(cfg Config, l1Config L1Config) (*Client, error) {
 	return &Client{
 		EthClient:             ethClient,
 		ZkEVM:                 poe,
+		RpcClient:             ethClient.Client(),
 		Matic:                 matic,
 		GlobalExitRootManager: globalExitRoot,
 		SCAddresses:           scAddresses,
@@ -949,12 +951,24 @@ func hash(data ...[32]byte) [32]byte {
 
 // HeaderByNumber returns a block header from the current canonical chain. If number is
 // nil, the latest known header is returned.
-func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
-	return etherMan.EthClient.HeaderByNumber(ctx, number)
+func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*EtherHeader, error) {
+	header, err := etherMan.EthClient.HeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	ethermintBlock, err := etherMan.GetEthermintBlockByNum(ctx, number.Uint64())
+	if err != nil {
+		return nil, err
+	}
+	etherHeader := &EtherHeader{
+		Header: header,
+		BlockHash: ethermintBlock.BlockHash,
+	}
+	return etherHeader, nil
 }
 
 // EthBlockByNumber function retrieves the ethereum block information by ethereum block number.
-func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*types.Block, error) {
+func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*EtherBlock, error) {
 	block, err := etherMan.EthClient.BlockByNumber(ctx, new(big.Int).SetUint64(blockNumber))
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) || err.Error() == "block does not exist in blockchain" {
@@ -962,7 +976,15 @@ func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64
 		}
 		return nil, err
 	}
-	return block, nil
+	ethermintBlock, err := etherMan.GetEthermintBlockByNum(ctx, blockNumber)
+	if err != nil {
+		return nil, err
+	}
+	etherBlock := &EtherBlock{
+		Block: block,
+		BlockHash: ethermintBlock.BlockHash,
+	}
+	return etherBlock, nil
 }
 
 // GetLastBatchTimestamp function allows to retrieve the lastTimestamp value in the smc
@@ -1221,4 +1243,18 @@ func (etherMan *Client) generateRandomAuth() (bind.TransactOpts, error) {
 	}
 
 	return *auth, nil
+}
+
+func (etherMan *Client) GetEthermintBlockByNum(ctx context.Context, blockNumber uint64) (*EthermintBlock, error) {
+	var raw json.RawMessage
+	err := etherMan.RpcClient.CallContext(ctx, &raw, "eth_getBlockByNumber", toBlockNumArg(new(big.Int).SetUint64(blockNumber)), true)
+	if err != nil {
+		return nil, err
+	}
+	block := &EthermintBlock{}
+	if err := json.Unmarshal(raw, &block); err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return block, nil
 }
