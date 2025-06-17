@@ -1,6 +1,6 @@
 module github.com/0xPolygonHermez/zkevm-node
 
-go 1.21
+go 1.22
 
 require (
 	github.com/0xPolygonHermez/zkevm-data-streamer v0.1.11
@@ -31,7 +31,7 @@ require (
 	golang.org/x/net v0.17.0
 	golang.org/x/sync v0.4.0
 	google.golang.org/grpc v1.59.0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
