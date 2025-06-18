@@ -12,7 +12,7 @@ endif
 GOBASE := $(shell pwd)
 GOBIN := $(GOBASE)/dist
 GOENVVARS := GOBIN=$(GOBIN) CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH)
-GOBINARY := b2-zkevm-node
+GOBINARY := zkevm-node
 GOCMD := $(GOBASE)/cmd
 
 LDFLAGS += -X 'github.com/0xPolygonHermez/zkevm-node.Version=$(VERSION)'
@@ -32,7 +32,7 @@ DATE=$(shell date +%Y%m%d-%H%M%S)
 COMMITID=$(shell git log -1 --format='%h')
 BRANCH=$(shell git branch --show-current)
 GIT_TAG=$(shell git describe --tags --abbrev=0)
-IMAGE_REPO=ghcr.io/b2network/b2-zkevm-node
+IMAGE_REPO=ghcr.io/qday-io/qday-zkevm-node
 IMAGE_TAG=${IMAGE_REPO}:${BRANCH}-${GIT_TAG}-${DATE}-${COMMITID}
 # Check dependencies
 # Check for Go

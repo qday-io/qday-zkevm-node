@@ -15,8 +15,8 @@ RUN find /src/dist
 
 # CONTAINER FOR RUNNING BINARY
 FROM alpine:3.18.0
-COPY --from=build /src/dist/b2-zkevm-node /app/b2-zkevm-node
+COPY --from=build /src/dist/zkevm-node /app/zkevm-node
 COPY --from=build /src/config/environments/testnet/node.config.toml /app/example.config.toml
 RUN apk update && apk add postgresql15-client
 EXPOSE 8123
-CMD ["/app/b2-zkevm-node"]
+CMD ["/app/zkevm-node"]

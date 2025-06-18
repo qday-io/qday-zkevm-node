@@ -13,7 +13,7 @@ services:
         condition: service_healthy
       zkevm-sync:
         condition: service_started
-    image: zkevm-node
+    image: ${ZKEVM-NODE}
     deploy:
       resources:
         limits:
@@ -38,7 +38,7 @@ services:
     depends_on:
       zkevm-state-db:
         condition: service_healthy
-    image: zkevm-node
+    image: ${ZKEVM-NODE}
     ports:
       - 9092:9091 # needed if metrics enabled
     deploy:
