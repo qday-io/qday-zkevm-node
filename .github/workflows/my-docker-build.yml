@@ -1,7 +1,19 @@
+name: Qday Build docker images
+
 on:
   push:
     branches:
-    - current
+      - main
+      - current
+      - 'release-*'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Custom tag for image'
+        required: false
+        default: ''
 
 jobs:
   docker:
