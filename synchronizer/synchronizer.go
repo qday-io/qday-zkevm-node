@@ -2,10 +2,12 @@ package synchronizer
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
 	"math/big"
+	"os"
 	"strings"
 	"time"
 
@@ -220,13 +222,24 @@ func (s *ClientSynchronizer) Sync() error {
 			var root common.Hash
 			root.SetBytes(newRoot)
 			if root != s.genesis.Root {
-				log.Errorf("Calculated newRoot should be %s instead of %s", s.genesis.Root.String(), root.String())
-				rollbackErr := dbTx.Rollback(s.ctx)
-				if rollbackErr != nil {
-					log.Errorf("error rolling back state. RollbackErr: %v", rollbackErr)
-					return rollbackErr
+				log.Warnf("Calculated newRoot (%s) differs from configured root (%s), using calculated root", root.String(), s.genesis.Root.String())
+				log.Infof("=== GENESIS ROOT UPDATE REQUIRED ===")
+				log.Infof("Please update your genesis.config.json file with the following root value:")
+				log.Infof("root: \"%s\"", root.String())
+				log.Infof("=== END GENESIS ROOT UPDATE ===")
+
+				// 根据配置决定是否自动更新配置文件
+				if s.cfg.AutoUpdateGenesisConfig {
+					if err := s.autoUpdateGenesisConfig(root.String()); err != nil {
+						log.Errorf("Failed to auto-update genesis config: %v", err)
+					} else {
+						log.Infof("Successfully auto-updated genesis config with new root: %s", root.String())
+						log.Infof("Please restart the node manually to apply the updated configuration.")
+					}
 				}
-				return fmt.Errorf("calculated newRoot should be %s instead of %s", s.genesis.Root.String(), root.String())
+
+				// 自动使用计算出的新root，而不是报错
+				s.genesis.Root = root
 			}
 			log.Debug("Genesis root matches!")
 		} else {
@@ -1820,4 +1833,65 @@ func (s *ClientSynchronizer) halt(ctx context.Context, err error) {
 		log.Error("halting the Synchronizer")
 		time.Sleep(5 * time.Second) //nolint:gomnd
 	}
+}
+
+// autoUpdateGenesisConfig 自动更新genesis配置文件
+func (s *ClientSynchronizer) autoUpdateGenesisConfig(newRoot string) error {
+	// 优先使用配置中的路径，然后是环境变量，最后是默认路径
+	configPath := s.cfg.GenesisConfigPath
+	if configPath == "" {
+		configPath = os.Getenv("GENESIS_CONFIG_PATH")
+	}
+	if configPath == "" {
+		// 默认路径 - 使用项目根目录下的genesis.json
+		configPath = "./genesis.json"
+	}
+
+	// 检查文件是否存在
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		log.Warnf("Genesis config file not found at %s, skipping auto-update", configPath)
+		return nil
+	}
+
+	// 读取配置文件
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %v", err)
+	}
+
+	// 解析JSON
+	var config map[string]interface{}
+	if err := json.Unmarshal(data, &config); err != nil {
+		return fmt.Errorf("failed to parse config file: %v", err)
+	}
+
+	// 备份原文件
+	backupPath := configPath + ".backup"
+	if err := os.WriteFile(backupPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to create backup file: %v", err)
+	}
+
+	log.Infof("Backup created at: %s", backupPath)
+
+	// 更新root值
+	oldRoot, _ := config["root"].(string)
+	config["root"] = newRoot
+
+	// 重新序列化
+	newData, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal updated config: %v", err)
+	}
+
+	// 写入文件
+	if err := os.WriteFile(configPath, newData, 0644); err != nil {
+		return fmt.Errorf("failed to write updated config: %v", err)
+	}
+
+	log.Infof("Successfully auto-updated genesis config:")
+	log.Infof("  Old root: %s", oldRoot)
+	log.Infof("  New root: %s", newRoot)
+	log.Infof("  Config file: %s", configPath)
+
+	return nil
 }

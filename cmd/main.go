@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -186,6 +187,26 @@ func main() {
 			Action:  restore,
 			Flags:   restoreFlags,
 		},
+		{
+			Name:    "update-genesis-root",
+			Aliases: []string{"ugr"},
+			Usage:   "Update the root value in genesis config file",
+			Action:  updateGenesisRoot,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:     "config",
+					Aliases:  []string{"c"},
+					Usage:    "Path to genesis config file",
+					Required: true,
+				},
+				&cli.StringFlag{
+					Name:     "root",
+					Aliases:  []string{"r"},
+					Usage:    "New root value to set",
+					Required: true,
+				},
+			},
+		},
 	}
 
 	err := app.Run(os.Args)
@@ -193,4 +214,78 @@ func main() {
 		log.Fatal(err)
 		os.Exit(1)
 	}
+}
+
+type GenesisConfig struct {
+	L1Config struct {
+		ChainID                           int    `json:"chainId"`
+		PolygonZkEVMAddress               string `json:"polygonZkEVMAddress"`
+		MaticTokenAddress                 string `json:"maticTokenAddress"`
+		PolygonZkEVMGlobalExitRootAddress string `json:"polygonZkEVMGlobalExitRootAddress"`
+	} `json:"l1Config"`
+	GenesisBlockNumber int    `json:"genesisBlockNumber"`
+	Root               string `json:"root"`
+	Genesis            struct {
+		GenesisActions []struct {
+			Address  string `json:"address"`
+			Type     int    `json:"type"`
+			Value    string `json:"value"`
+			Bytecode string `json:"bytecode,omitempty"`
+		} `json:"genesisActions"`
+	} `json:"genesis"`
+}
+
+func updateGenesisRoot(ctx *cli.Context) error {
+	configPath := ctx.String("config")
+	newRoot := ctx.String("root")
+
+	if configPath == "" {
+		return fmt.Errorf("config path is required")
+	}
+
+	if newRoot == "" {
+		return fmt.Errorf("new root value is required")
+	}
+
+	// 读取配置文件
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %v", err)
+	}
+
+	// 解析JSON
+	var config GenesisConfig
+	if err := json.Unmarshal(data, &config); err != nil {
+		return fmt.Errorf("failed to parse config file: %v", err)
+	}
+
+	// 备份原文件
+	backupPath := configPath + ".backup"
+	if err := os.WriteFile(backupPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to create backup file: %v", err)
+	}
+
+	fmt.Printf("Backup created at: %s\n", backupPath)
+
+	// 更新root值
+	oldRoot := config.Root
+	config.Root = newRoot
+
+	// 重新序列化
+	newData, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal updated config: %v", err)
+	}
+
+	// 写入文件
+	if err := os.WriteFile(configPath, newData, 0644); err != nil {
+		return fmt.Errorf("failed to write updated config: %v", err)
+	}
+
+	fmt.Printf("Successfully updated genesis root:\n")
+	fmt.Printf("  Old root: %s\n", oldRoot)
+	fmt.Printf("  New root: %s\n", newRoot)
+	fmt.Printf("  Config file: %s\n", configPath)
+
+	return nil
 }

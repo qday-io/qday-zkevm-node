@@ -19,6 +19,13 @@ type Config struct {
 	L1SynchronizationMode string `jsonschema:"enum=sequential,enum=parallel"`
 	// L1ParallelSynchronization Configuration for parallel mode (if L1SynchronizationMode equal to 'parallel')
 	L1ParallelSynchronization L1ParallelSynchronizationConfig
+
+	// AutoUpdateGenesisConfig enables automatic update of genesis config file when root mismatch is detected
+	AutoUpdateGenesisConfig bool `mapstructure:"AutoUpdateGenesisConfig"`
+	// AutoRestartNode enables automatic restart of the node after genesis config update
+	AutoRestartNode bool `mapstructure:"AutoRestartNode"`
+	// GenesisConfigPath specifies the path to the genesis config file (optional, defaults to test/config/test.genesis.config.json)
+	GenesisConfigPath string `mapstructure:"GenesisConfigPath"`
 }
 
 // L1ParallelSynchronizationConfig Configuration for parallel mode (if UL1SynchronizationMode equal to 'parallel')
