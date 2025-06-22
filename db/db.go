@@ -114,9 +114,11 @@ func checkMigrations(cfg Config, packrName string, direction migrate.MigrationDi
 	query := `SELECT COUNT(1) FROM public.gorp_migrations`
 	err = db.QueryRow(query).Scan(&actual)
 	if err != nil {
-		log.Error("error getting migrations count: ", err)
-		return err
+		// If the table doesn't exist, run migrations to create it
+		log.Warnf("gorp_migrations table doesn't exist, running migrations to create it: %v", err)
+		return runMigrations(cfg, packrName, direction)
 	}
+
 	if expected == actual {
 		log.Infof("Found %d migrations as expected", actual)
 	} else {
