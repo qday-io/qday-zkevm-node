@@ -149,11 +149,11 @@ func (w *workers) requestLastBlock(ctx context.Context, timeout time.Duration) r
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	//workerIndex, worker := w.getIdleWorkerUnsafe()
-	worker := &w.workerForLastBlock
-	if worker == nil {
+	if w.workerForLastBlock.worker == nil {
 		log.Debugf("workers: call:[%s] failed err:%s", "requestLastBlock", errAllWorkersBusy)
 		return newResponseL1LastBlock(errAllWorkersBusy, time.Duration(0), typeRequestLastBlock, nil)
 	}
+	worker := &w.workerForLastBlock
 	worker.ctx = ctxTimeout
 
 	log.Debugf("workers: worker : launching requestLatBlock (timeout=%s)", timeout.String())

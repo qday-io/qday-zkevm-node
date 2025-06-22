@@ -548,11 +548,16 @@ func (l *l1RollupInfoProducer) renewLastBlockOnL1IfNeeded(reason string) {
 	if elapsed > ttl {
 		log.Infof("producer: Need a new value for Last Block On L1, doing the request reason:%s", reason)
 		result := l.workers.requestLastBlockWithRetries(l.ctxWithCancel.ctx, l.cfg.timeoutForRequestLastBlockOnL1, l.cfg.numOfAllowedRetriesForRequestLastBlockOnL1)
-		log.Infof("producer: Need a new value for Last Block On L1, doing the request old_block:%v -> new block:%v", oldBlock, result.result.block)
 		if result.generic.err != nil {
 			log.Error(result.generic.err)
 			return
 		}
+		// Add nil check to prevent panic
+		if result.result == nil {
+			log.Error("producer: received nil result from requestLastBlockWithRetries")
+			return
+		}
+		log.Infof("producer: Need a new value for Last Block On L1, doing the request old_block:%v -> new block:%v", oldBlock, result.result.block)
 		l.onNewLastBlock(result.result.block)
 	}
 }
@@ -568,6 +573,11 @@ func (l *l1RollupInfoProducer) onResponseRollupInfo(result responseRollupInfoByB
 	var highestBlockNumberInResponse uint64 = invalidBlockNumber
 	if isOk {
 		highestBlockNumberInResponse = result.getHighestBlockNumberInResponse()
+	}
+	// Add nil check to prevent panic
+	if result.result == nil {
+		log.Error("producer: received nil result in onResponseRollupInfo")
+		return
 	}
 	if !l.syncStatus.OnFinishWorker(result.result.blockRange, isOk, highestBlockNumberInResponse) {
 		log.Infof("producer: Ignoring result because the range is not longer valid: %s", result.toStringBrief())

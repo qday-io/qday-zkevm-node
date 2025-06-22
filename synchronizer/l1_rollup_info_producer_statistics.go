@@ -47,7 +47,9 @@ func (l *l1RollupInfoProducerStatistics) onResponseRollupInfo(result responseRol
 	isOk := (result.generic.err == nil)
 	if isOk {
 		l.numRollupInfoOk++
-		l.numRetrievedBlocks += uint64(result.result.blockRange.len())
+		if result.result != nil {
+			l.numRetrievedBlocks += uint64(result.result.blockRange.len())
+		}
 		l.accumulatedTimeProcessingRollup += result.generic.duration
 	} else {
 		l.numRollupInfoErrors++
